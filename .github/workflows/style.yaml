@@ -2,6 +2,7 @@ name: Code Style
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions: {}
 
@@ -20,7 +21,7 @@ jobs:
 
       - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           check-latest: true
 
       - uses: chainguard-dev/actions/gofmt@d886686603afb809f7ef9b734b333e20b7ce5cda
@@ -41,7 +42,7 @@ jobs:
 
       - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           check-latest: true
 
       - uses: chainguard-dev/actions/goimports@d886686603afb809f7ef9b734b333e20b7ce5cda
@@ -62,7 +63,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
           check-latest: true
 
       - uses: chainguard-dev/actions/trailing-space@d886686603afb809f7ef9b734b333e20b7ce5cda
