@@ -1,0 +1,20 @@
+name: Test CI Trigger
+
+on:
+  pull_request:
+  push:
+    branches:
+      - feature/add-utility-functions
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test-trigger:
+    name: Test if CI runs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test step
+        run: echo "CI is working!"
