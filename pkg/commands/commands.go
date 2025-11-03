@@ -15,7 +15,9 @@
 package commands
 
 import (
+	"fmt"
 	"os/exec"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -40,4 +42,59 @@ func isKubectlAvailable() bool {
 		return false
 	}
 	return true
+}
+
+// getKubectlVersion returns the kubectl version string
+func getKubectlVersion() (string, error) {
+	cmd := exec.Command("kubectl", "version", "--client=true", "--short=true")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to get kubectl version: %w", err)
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+// validateKubeCommands checks if all required tools for Kubernetes commands are available
+func validateKubeCommands() error {
+	if !isKubectlAvailable() {
+		return fmt.Errorf("kubectl is required but not found in PATH")
+	}
+
+	version, err := getKubectlVersion()
+	if err != nil {
+		return fmt.Errorf("failed to validate kubectl: %w", err)
+	}
+
+	if version == "" {
+		return fmt.Errorf("kubectl version could not be determined")
+	}
+
+	return nil
+}
+
+// isCommandAvailable checks if a given command is available in PATH
+func isCommandAvailable(cmd string) bool {
+	if _, err := exec.LookPath(cmd); err != nil {
+		return false
+	}
+	return true
+}
+
+// getRequiredCommands returns a list of commands required for ko's full functionality
+func getRequiredCommands() []string {
+	return []string{"kubectl", "docker"}
+}
+
+// validatePrerequisites checks if all prerequisites for ko are met
+func validatePrerequisites() []string {
+	var missing []string
+	required := getRequiredCommands()
+
+	for _, cmd := range required {
+		if !isCommandAvailable(cmd) {
+			missing = append(missing, cmd)
+		}
+	}
+
+	return missing
 }
