@@ -2,16 +2,13 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"os"
 	"testing"
 	"time"
 )
 
 // Mock for os.Stat
-type MockFileInfo struct {
-	mock.Mock
-}
+type MockFileInfo struct{}
 
 func (m *MockFileInfo) Name() string       { return "" }
 func (m *MockFileInfo) Size() int64        { return 0 }
