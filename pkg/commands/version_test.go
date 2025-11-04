@@ -46,7 +46,6 @@ func TestVersion(t *testing.T) {
         t.Run(tt.name, func(t *testing.T) {
             Version = tt.version
             originalReadBuildInfo := debug.ReadBuildInfo
-            debug.ReadBuildInfo = tt.buildInfoFunc
             defer func() { debug.ReadBuildInfo = originalReadBuildInfo }()
 
             got := version()
