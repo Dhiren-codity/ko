@@ -48,6 +48,8 @@ func TestVersion(t *testing.T) {
             originalReadBuildInfo := debug.ReadBuildInfo
             defer func() { debug.ReadBuildInfo = originalReadBuildInfo }()
 
+            debug.ReadBuildInfo = tt.buildInfoFunc
+
             got := version()
             assert.Equal(t, tt.expected, got)
         })
