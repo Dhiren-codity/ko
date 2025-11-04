@@ -1,0 +1,15 @@
+{
+  "baseImage": "gcr.io/distroless/static:nonroot",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "images": [
+    "github.com/google/ko/cmd/ko"
+  ],
+  "labels": {
+    "org.opencontainers.image.source": "https://github.com/google/ko",
+    "org.opencontainers.image.description": "ko - Build and deploy Go applications on Kubernetes"
+  },
+  "allowInsecure": false
+}
