@@ -1,12 +1,14 @@
 package commands
 
 import (
-    "testing"
-    "github.com/stretchr/testify/assert"
-    "runtime/debug"
-    "github.com/spf13/cobra"
     "bytes"
+    "fmt"
     "os"
+    "runtime/debug"
+    "testing"
+
+    "github.com/spf13/cobra"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestVersion(t *testing.T) {
