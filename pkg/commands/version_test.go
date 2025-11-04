@@ -4,6 +4,7 @@ import (
     "testing"
     "github.com/stretchr/testify/assert"
     "github.com/spf13/cobra"
+    "runtime/debug"
 )
 
 func TestAddVersion(t *testing.T) {
@@ -35,6 +36,9 @@ func TestVersion(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             Version = tt.version
+            if tt.buildInfo != nil {
+                Version = tt.buildInfo.Main.Version
+            }
             got := version()
             assert.Equal(t, tt.want, got)
         })
