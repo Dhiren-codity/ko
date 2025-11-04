@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+	"runtime/debug"
 	"testing"
 )
 
@@ -57,7 +58,6 @@ func TestVersion(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			Version = tt.version
 			if tt.buildInfoFunc != nil {
-				// Cannot mock debug.ReadBuildInfo, so skip this part
 				t.Skip("Cannot mock debug.ReadBuildInfo")
 			}
 
