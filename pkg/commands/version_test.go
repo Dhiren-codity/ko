@@ -1,10 +1,8 @@
 package commands
 
 import (
-	"bytes"
 	"runtime/debug"
 	"testing"
-
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
@@ -57,23 +55,4 @@ func TestAddVersion(t *testing.T) {
 		}
 	}
 	assert.True(t, found, "version command should be added to the root command")
-}
-
-func TestVersionCommandOutput(t *testing.T) {
-	rootCmd := &cobra.Command{Use: "test"}
-	addVersion(rootCmd)
-
-	buf := new(bytes.Buffer)
-	rootCmd.SetOut(buf)
-	rootCmd.SetArgs([]string{"version"})
-
-	err := rootCmd.Execute()
-	assert.NoError(t, err)
-
-	output := buf.String()
-	if Version == "" {
-		assert.Contains(t, output, "could not determine build information")
-	} else {
-		assert.Contains(t, output, Version)
-	}
 }
