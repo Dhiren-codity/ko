@@ -101,7 +101,7 @@ func TestValidateConfigStructure(t *testing.T) {
 				BaseImage: "golang",
 				Images:    []string{"app"},
 			},
-			expected: []string{},
+			expected: nil,
 		},
 		{
 			name: "missing baseImage",
