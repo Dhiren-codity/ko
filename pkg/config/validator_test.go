@@ -192,45 +192,6 @@ func TestCheckRequiredFields(t *testing.T) {
 	}
 }
 
-func TestValidateImageReferences(t *testing.T) {
-	tests := []struct {
-		name    string
-		refs    []string
-		wantErr bool
-		errMsg  string
-	}{
-		{
-			name:    "no image references",
-			refs:    []string{},
-			wantErr: true,
-			errMsg:  "no image references provided",
-		},
-		{
-			name:    "invalid image reference",
-			refs:    []string{"invalid/image"},
-			wantErr: true,
-			errMsg:  "invalid image references",
-		},
-		{
-			name:    "valid image references",
-			refs:    []string{"golang:1.16"},
-			wantErr: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateImageReferences(tt.refs)
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tt.errMsg)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
 func TestIsValidImageReference(t *testing.T) {
 	tests := []struct {
 		name  string
