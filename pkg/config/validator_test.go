@@ -151,7 +151,7 @@ func TestValidateImageReferences(t *testing.T) {
 		{
 			name:    "invalid image references",
 			refs:    []string{"invalid/image"},
-			wantErr: false, // Updated to match source code behavior
+			wantErr: true,
 		},
 		{
 			name:    "empty image references",
@@ -186,7 +186,7 @@ func TestIsValidImageReference(t *testing.T) {
 		{
 			name:     "invalid image reference",
 			ref:      "invalid/image",
-			expected: true, // Updated to match source code behavior
+			expected: false,
 		},
 		{
 			name:     "empty image reference",
@@ -235,7 +235,7 @@ func TestIsValidPlatform(t *testing.T) {
 }
 
 func TestGetConfigPath(t *testing.T) {
-	expected := ".ko.json" // Updated to match source code behavior
+	expected := ".ko.json"
 	result := GetConfigPath()
 	assert.Equal(t, expected, result)
 }
