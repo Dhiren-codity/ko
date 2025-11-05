@@ -1,15 +1,17 @@
 package config
 
 import (
-    "os"
-    "testing"
-    "github.com/stretchr/testify/assert"
-    "github.com/stretchr/testify/mock"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 // Mock for os.Stat
 type MockFileInfo struct {
-    mock.Mock
+	mock.Mock
 }
 
 func (m *MockFileInfo) Name() string       { return "" }
@@ -20,204 +22,204 @@ func (m *MockFileInfo) IsDir() bool        { return false }
 func (m *MockFileInfo) Sys() interface{}   { return nil }
 
 func TestFileExists(t *testing.T) {
-    tests := []struct {
-        name     string
-        path     string
-        setup    func()
-        expected bool
-    }{
-        {
-            name: "file exists",
-            path: "testfile",
-            setup: func() {
-                os.Create("testfile")
-            },
-            expected: true,
-        },
-        {
-            name: "file does not exist",
-            path: "nonexistent",
-            setup: func() {},
-            expected: false,
-        },
-    }
+	tests := []struct {
+		name     string
+		path     string
+		setup    func()
+		expected bool
+	}{
+		{
+			name: "file exists",
+			path: "testfile",
+			setup: func() {
+				os.Create("testfile")
+			},
+			expected: true,
+		},
+		{
+			name:     "file does not exist",
+			path:     "nonexistent",
+			setup:    func() {},
+			expected: false,
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            tt.setup()
-            defer os.Remove(tt.path)
-            result := FileExists(tt.path)
-            assert.Equal(t, tt.expected, result)
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.setup()
+			defer os.Remove(tt.path)
+			result := FileExists(tt.path)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
 
 func TestParseConfig(t *testing.T) {
-    tests := []struct {
-        name    string
-        data    []byte
-        wantErr bool
-    }{
-        {
-            name:    "valid config",
-            data:    []byte(`{"baseImage":"golang","images":["app"]}`),
-            wantErr: false,
-        },
-        {
-            name:    "invalid JSON",
-            data:    []byte(`{"baseImage":"golang","images":["app"`),
-            wantErr: true,
-        },
-        {
-            name:    "empty data",
-            data:    []byte(``),
-            wantErr: true,
-        },
-    }
+	tests := []struct {
+		name    string
+		data    []byte
+		wantErr bool
+	}{
+		{
+			name:    "valid config",
+			data:    []byte(`{"baseImage":"golang","images":["app"]}`),
+			wantErr: false,
+		},
+		{
+			name:    "invalid JSON",
+			data:    []byte(`{"baseImage":"golang","images":["app"`),
+			wantErr: true,
+		},
+		{
+			name:    "empty data",
+			data:    []byte(``),
+			wantErr: true,
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            _, err := ParseConfig(tt.data)
-            if tt.wantErr {
-                assert.Error(t, err)
-            } else {
-                assert.NoError(t, err)
-            }
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := ParseConfig(tt.data)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func TestValidateConfigStructure(t *testing.T) {
-    tests := []struct {
-        name     string
-        cfg      *Config
-        expected []string
-    }{
-        {
-            name: "valid config",
-            cfg: &Config{
-                BaseImage: "golang",
-                Images:    []string{"app"},
-            },
-            expected: []string{},
-        },
-        {
-            name: "missing baseImage",
-            cfg: &Config{
-                Images: []string{"app"},
-            },
-            expected: []string{"baseImage is required"},
-        },
-        {
-            name: "missing images",
-            cfg: &Config{
-                BaseImage: "golang",
-            },
-            expected: []string{"at least one image must be specified"},
-        },
-    }
+	tests := []struct {
+		name     string
+		cfg      *Config
+		expected []string
+	}{
+		{
+			name: "valid config",
+			cfg: &Config{
+				BaseImage: "golang",
+				Images:    []string{"app"},
+			},
+			expected: []string{},
+		},
+		{
+			name: "missing baseImage",
+			cfg: &Config{
+				Images: []string{"app"},
+			},
+			expected: []string{"baseImage is required"},
+		},
+		{
+			name: "missing images",
+			cfg: &Config{
+				BaseImage: "golang",
+			},
+			expected: []string{"at least one image must be specified"},
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result := ValidateConfigStructure(tt.cfg)
-            assert.Equal(t, tt.expected, result)
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ValidateConfigStructure(tt.cfg)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
 
 func TestValidateImageReferences(t *testing.T) {
-    tests := []struct {
-        name    string
-        refs    []string
-        wantErr bool
-    }{
-        {
-            name:    "valid references",
-            refs:    []string{"golang", "alpine"},
-            wantErr: false,
-        },
-        {
-            name:    "invalid references",
-            refs:    []string{"invalid/image"},
-            wantErr: true,
-        },
-        {
-            name:    "empty references",
-            refs:    []string{},
-            wantErr: true,
-        },
-    }
+	tests := []struct {
+		name    string
+		refs    []string
+		wantErr bool
+	}{
+		{
+			name:    "valid references",
+			refs:    []string{"golang", "alpine"},
+			wantErr: false,
+		},
+		{
+			name:    "invalid references",
+			refs:    []string{"invalid/image"},
+			wantErr: true,
+		},
+		{
+			name:    "empty references",
+			refs:    []string{},
+			wantErr: true,
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            err := ValidateImageReferences(tt.refs)
-            if tt.wantErr {
-                assert.Error(t, err)
-            } else {
-                assert.NoError(t, err)
-            }
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateImageReferences(tt.refs)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
 
 func TestIsValidImageReference(t *testing.T) {
-    tests := []struct {
-        name     string
-        ref      string
-        expected bool
-    }{
-        {
-            name:     "valid reference",
-            ref:      "golang",
-            expected: true,
-        },
-        {
-            name:     "invalid reference",
-            ref:      "invalid/image",
-            expected: false,
-        },
-        {
-            name:     "empty reference",
-            ref:      "",
-            expected: false,
-        },
-    }
+	tests := []struct {
+		name     string
+		ref      string
+		expected bool
+	}{
+		{
+			name:     "valid reference",
+			ref:      "golang",
+			expected: true,
+		},
+		{
+			name:     "invalid reference",
+			ref:      "invalid/image",
+			expected: false,
+		},
+		{
+			name:     "empty reference",
+			ref:      "",
+			expected: false,
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result := IsValidImageReference(tt.ref)
-            assert.Equal(t, tt.expected, result)
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsValidImageReference(tt.ref)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
 
 func TestIsValidPlatform(t *testing.T) {
-    tests := []struct {
-        name     string
-        platform string
-        expected bool
-    }{
-        {
-            name:     "valid platform",
-            platform: "linux/amd64",
-            expected: true,
-        },
-        {
-            name:     "invalid platform",
-            platform: "invalid/platform",
-            expected: false,
-        },
-        {
-            name:     "empty platform",
-            platform: "",
-            expected: false,
-        },
-    }
+	tests := []struct {
+		name     string
+		platform string
+		expected bool
+	}{
+		{
+			name:     "valid platform",
+			platform: "linux/amd64",
+			expected: true,
+		},
+		{
+			name:     "invalid platform",
+			platform: "invalid/platform",
+			expected: false,
+		},
+		{
+			name:     "empty platform",
+			platform: "",
+			expected: false,
+		},
+	}
 
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            result := IsValidPlatform(tt.platform)
-            assert.Equal(t, tt.expected, result)
-        })
-    }
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := IsValidPlatform(tt.platform)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }
