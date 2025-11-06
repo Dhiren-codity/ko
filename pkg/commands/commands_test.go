@@ -32,8 +32,11 @@ func TestIsKubectlAvailable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execLookPath = func(file string) (string, error) {
-				return "", tt.setup()
+			execCommand := func(name string, arg ...string) *exec.Cmd {
+				return &exec.Cmd{
+					Path: "",
+					Err:  tt.setup(),
+				}
 			}
 			got := isKubectlAvailable()
 			assert.Equal(t, tt.want, got)
@@ -68,9 +71,10 @@ func TestGetKubectlVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execCommand = func(name string, arg ...string) *exec.Cmd {
+			execCommand := func(name string, arg ...string) *exec.Cmd {
 				return &exec.Cmd{
-					Output: tt.setup,
+					Path: "",
+					Err:  tt.setup(),
 				}
 			}
 			got, err := getKubectlVersion()
@@ -115,11 +119,11 @@ func TestValidateKubeCommands(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			isKubectlAvailable = func() bool {
+			isKubectlAvailable := func() bool {
 				available, _, _ := tt.setup()
 				return available
 			}
-			getKubectlVersion = func() (string, error) {
+			getKubectlVersion := func() (string, error) {
 				_, version, err := tt.setup()
 				return version, err
 			}
@@ -160,8 +164,11 @@ func TestIsCommandAvailable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execLookPath = func(file string) (string, error) {
-				return "", tt.setup()
+			execCommand := func(name string, arg ...string) *exec.Cmd {
+				return &exec.Cmd{
+					Path: "",
+					Err:  tt.setup(),
+				}
 			}
 			got := isCommandAvailable(tt.command)
 			assert.Equal(t, tt.want, got)
@@ -193,7 +200,7 @@ func TestValidatePrerequisites(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			validatePrerequisites = func() []string {
+			validatePrerequisites := func() []string {
 				return tt.setup()
 			}
 			got := validatePrerequisites()
