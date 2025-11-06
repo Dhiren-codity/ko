@@ -235,7 +235,7 @@ func TestIsValidPlatform(t *testing.T) {
 }
 
 func TestGetConfigPath(t *testing.T) {
-	expected := "./.ko.json"
+	expected := ".ko.json"
 	result := GetConfigPath()
 	assert.Equal(t, expected, result)
 }
@@ -252,21 +252,21 @@ func TestLoadDefaultConfig(t *testing.T) {
 		{
 			name: "valid default config",
 			setup: func() {
-				os.WriteFile("./.ko.json", []byte(validConfig), 0644)
+				os.WriteFile(".ko.json", []byte(validConfig), 0644)
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid default config",
 			setup: func() {
-				os.WriteFile("./.ko.json", []byte(invalidConfig), 0644)
+				os.WriteFile(".ko.json", []byte(invalidConfig), 0644)
 			},
 			wantErr: true,
 		},
 		{
 			name: "no default config",
 			setup: func() {
-				os.Remove("./.ko.json")
+				os.Remove(".ko.json")
 			},
 			wantErr: true,
 		},
@@ -275,7 +275,7 @@ func TestLoadDefaultConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
-			defer os.Remove("./.ko.json")
+			defer os.Remove(".ko.json")
 			_, err := LoadDefaultConfig()
 			if tt.wantErr {
 				assert.Error(t, err)
