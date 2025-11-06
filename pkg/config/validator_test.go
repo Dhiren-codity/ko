@@ -123,7 +123,7 @@ func TestValidateImageReferences(t *testing.T) {
 
 func TestIsValidImageReference(t *testing.T) {
 	assert.True(t, IsValidImageReference("gcr.io/my-project/my-image"))
-	assert.False(t, IsValidImageReference("Invalid/Image")) // Changed to match source code behavior
+	assert.False(t, IsValidImageReference("Invalid/Image"))
 }
 
 func TestIsValidPlatform(t *testing.T) {
@@ -132,7 +132,7 @@ func TestIsValidPlatform(t *testing.T) {
 }
 
 func TestGetConfigPath(t *testing.T) {
-	expectedPath := ".ko.json" // Changed to match source code behavior
+	expectedPath := ".ko.json"
 	assert.Equal(t, expectedPath, GetConfigPath())
 }
 
