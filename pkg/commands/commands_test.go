@@ -32,11 +32,9 @@ func TestIsKubectlAvailable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execCommand := func(name string, arg ...string) *exec.Cmd {
-				return &exec.Cmd{
-					Path: "",
-					Err:  tt.setup(),
-				}
+			// Mocking exec.LookPath
+			execLookPath = func(file string) (string, error) {
+				return "", tt.setup()
 			}
 			got := isKubectlAvailable()
 			assert.Equal(t, tt.want, got)
@@ -71,7 +69,8 @@ func TestGetKubectlVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execCommand := func(name string, arg ...string) *exec.Cmd {
+			// Mocking exec.Command
+			execCommand = func(name string, arg ...string) *exec.Cmd {
 				return &exec.Cmd{
 					Path: "",
 					Err:  tt.setup(),
@@ -119,11 +118,12 @@ func TestValidateKubeCommands(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			isKubectlAvailable := func() bool {
+			// Mocking isKubectlAvailable and getKubectlVersion
+			isKubectlAvailable = func() bool {
 				available, _, _ := tt.setup()
 				return available
 			}
-			getKubectlVersion := func() (string, error) {
+			getKubectlVersion = func() (string, error) {
 				_, version, err := tt.setup()
 				return version, err
 			}
@@ -164,11 +164,9 @@ func TestIsCommandAvailable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execCommand := func(name string, arg ...string) *exec.Cmd {
-				return &exec.Cmd{
-					Path: "",
-					Err:  tt.setup(),
-				}
+			// Mocking exec.LookPath
+			execLookPath = func(file string) (string, error) {
+				return "", tt.setup()
 			}
 			got := isCommandAvailable(tt.command)
 			assert.Equal(t, tt.want, got)
@@ -200,7 +198,8 @@ func TestValidatePrerequisites(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			validatePrerequisites := func() []string {
+			// Mocking validatePrerequisites
+			validatePrerequisites = func() []string {
 				return tt.setup()
 			}
 			got := validatePrerequisites()
