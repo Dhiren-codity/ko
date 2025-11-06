@@ -249,7 +249,7 @@ func TestIsValidImageReference(t *testing.T) {
 		{
 			name:     "invalid reference",
 			ref:      "invalid/image",
-			expected: true, // Updated to match source code behavior
+			expected: false,
 		},
 		{
 			name:     "valid reference",
@@ -298,7 +298,7 @@ func TestIsValidPlatform(t *testing.T) {
 }
 
 func TestGetConfigPath(t *testing.T) {
-	expected := ".ko.json" // Updated to match source code behavior
+	expected := ".ko.json"
 	result := GetConfigPath()
 	assert.Equal(t, expected, result)
 }
