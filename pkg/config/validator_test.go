@@ -107,7 +107,7 @@ func TestValidateConfigStructure(t *testing.T) {
 				Images:    []string{"app"},
 				Labels:    map[string]string{"version": "1.0"},
 			},
-			expected: []string{},
+			expected: nil,
 		},
 		{
 			name: "missing baseImage",
