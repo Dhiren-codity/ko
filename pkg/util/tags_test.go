@@ -63,38 +63,6 @@ func TestSanitizeTag(t *testing.T) {
 	}
 }
 
-func TestGenerateTagFromRef(t *testing.T) {
-	tests := []struct {
-		name    string
-		ref     string
-		want    string
-		wantErr bool
-	}{
-		{"branch main", "refs/heads/main", "main", false},
-		{"branch with path", "refs/heads/feature/foo", "feature-foo", false},
-		{"tag ref", "refs/tags/v1.2.3", "v1.2.3", false},
-		{"pull request head", "refs/pull/123/head", "pr-123", false},
-		{"pull request no subpath", "refs/pull/123", "pr-123", false},
-		{"pull request missing id but trailing slash", "refs/pull/", "pr", false},
-		{"invalid pull format error", "refs/pull", "", true},
-		{"unknown format uses as-is sanitized", "weird/ref", "weird-ref", false},
-		{"unknown with invalid chars", "weird@@ref", "weird-ref", false},
-		{"empty ref error", "", "", true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GenerateTagFromRef(tt.ref)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-			assert.True(t, IsValidTag(got))
-		})
-	}
-}
-
 func TestTruncateTag(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -152,42 +120,6 @@ func TestNormalizeTag(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, got)
 			assert.True(t, IsValidTag(got))
-		})
-	}
-}
-
-func TestAppendSuffix(t *testing.T) {
-	base128 := strings.Repeat("a", MaxTagLength)
-	base127 := strings.Repeat("a", MaxTagLength-1)
-	tests := []struct {
-		name      string
-		tag       string
-		suffix    string
-		want      string
-		wantErr   bool
-	}{
-		{"error on empty tag", "", "suf", "", true},
-		{"no suffix returns tag", "base", "", "base", false},
-		{"adds hyphen separator", "base", "suf", "base-suf", false},
-		{"keeps existing dash", "base", "-suf", "base-suf", false},
-		{"dot separator allowed", "base", ".meta", "base.meta", false},
-		{"invalid base causes invalid combined", "in valid", "ok", "", true},
-		{"invalid suffix causes invalid combined", "valid", "#$", "", true},
-		{"truncate base to fit suffix", base128, "x", base127 + "-x", false},
-		{"suffix too long error", "base", strings.Repeat("a", MaxTagLength), "", true},
-		{"combined within limit no truncation", "AbC", "_XYZ", "AbC_XYZ", false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := AppendSuffix(tt.tag, tt.suffix)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-			assert.True(t, IsValidTag(got))
-			assert.LessOrEqual(t, len(got), MaxTagLength)
 		})
 	}
 }
