@@ -235,7 +235,7 @@ func TestIsValidPlatform(t *testing.T) {
 }
 
 func TestGetConfigPath(t *testing.T) {
-	expected := "./.ko.json"
+	expected := ".ko.json"
 	result := GetConfigPath()
 	assert.Equal(t, expected, result)
 }
