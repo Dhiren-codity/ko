@@ -57,10 +57,7 @@ func TestGetKubectlVersion(t *testing.T) {
 			setup: func() {
 				originalCommand := exec.Command
 				exec.Command = func(name string, arg ...string) *exec.Cmd {
-					return &exec.Cmd{
-						Path: "/bin/echo",
-						Args: []string{"echo", "Client Version: v1.20.0"},
-					}
+					return exec.Command("echo", "Client Version: v1.20.0")
 				}
 				defer func() { exec.Command = originalCommand }()
 			},
@@ -73,10 +70,7 @@ func TestGetKubectlVersion(t *testing.T) {
 			setup: func() {
 				originalCommand := exec.Command
 				exec.Command = func(name string, arg ...string) *exec.Cmd {
-					return &exec.Cmd{
-						Path: "/bin/false",
-						Args: []string{"false"},
-					}
+					return exec.Command("false")
 				}
 				defer func() { exec.Command = originalCommand }()
 			},
@@ -117,10 +111,7 @@ func TestValidateKubeCommands(t *testing.T) {
 				}
 				originalCommand := exec.Command
 				exec.Command = func(name string, arg ...string) *exec.Cmd {
-					return &exec.Cmd{
-						Path: "/bin/echo",
-						Args: []string{"echo", "Client Version: v1.20.0"},
-					}
+					return exec.Command("echo", "Client Version: v1.20.0")
 				}
 				defer func() {
 					exec.LookPath = originalLookPath
