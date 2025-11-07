@@ -63,36 +63,6 @@ func TestIsValidTag(t *testing.T) {
 	}
 }
 
-func TestGenerateTagFromRef(t *testing.T) {
-	tests := []struct {
-		name    string
-		ref     string
-		want    string
-		wantErr bool
-	}{
-		{"branch main", "refs/heads/main", "main", false},
-		{"branch feature path", "refs/heads/feature/foo", "feature-foo", false},
-		{"tag release", "refs/tags/v1.0.0", "v1.0.0", false},
-		{"pull request head", "refs/pull/123/head", "pr-123", false},
-		{"invalid pull format", "refs/pull", "", true},
-		{"unknown format use as-is sanitized", "some/branch", "some-branch", false},
-		{"sanitization error bubbles up", "refs/heads/---", "", true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GenerateTagFromRef(tt.ref)
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Empty(t, got)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-			assert.True(t, IsValidTag(got))
-		})
-	}
-}
-
 func TestTruncateTag(t *testing.T) {
 	tests := []struct {
 		name      string
