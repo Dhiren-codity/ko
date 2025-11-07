@@ -20,7 +20,6 @@ func setupPATH(t *testing.T, dir string) func() {
 	var oldPathext string
 	if runtime.GOOS == "windows" {
 		oldPathext = os.Getenv("PATHEXT")
-		// Ensure common executable extensions are present
 		_ = os.Setenv("PATHEXT", ".COM;.EXE;.BAT;.CMD")
 	}
 
@@ -41,22 +40,18 @@ func writeFile(t *testing.T, path, content string, mode os.FileMode) {
 func createFakeCommand(t *testing.T, dir, name, content string) string {
 	t.Helper()
 
-	// If name includes '.', assume explicit filename, do not modify.
 	filename := name
 	if runtime.GOOS == "windows" {
 		if !strings.Contains(name, ".") {
 			filename = name + ".bat"
 		}
-		// If no content provided, make a default successful script.
 		if content == "" {
 			content = "@echo off\r\n"
 		}
 	} else {
-		// On Unix, use a shebang and default to a no-op if no content.
 		if content == "" {
 			content = "#!/bin/sh\n:"
 		} else if !strings.HasPrefix(content, "#!") {
-			// Ensure it's executable script with shebang
 			content = "#!/bin/sh\n" + content
 		}
 	}
@@ -101,12 +96,9 @@ func TestIsCommandAvailable(t *testing.T) {
 	restore := setupPATH(t, dir)
 	defer restore()
 
-	// Create an executable "foo"
-	createFakeCommand(t, dir, "foo", "", 0755)
+	createFakeCommand(t, dir, "foo", "")
 
-	// Create a non-executable/non-resolvable "bar" (without executable extension on Windows)
 	if runtime.GOOS == "windows" {
-		// Create a file that isn't matched by PATHEXT
 		writeFile(t, filepath.Join(dir, "bar.txt"), "not executable", 0644)
 	} else {
 		writeFile(t, filepath.Join(dir, "bar"), "not executable", 0644)
@@ -136,7 +128,7 @@ func TestIsKubectlAvailable(t *testing.T) {
 		restore := setupPATH(t, dir)
 		defer restore()
 
-		createFakeCommand(t, dir, "kubectl", "", 0755)
+		createFakeCommand(t, dir, "kubectl", "")
 		assert.True(t, isKubectlAvailable())
 	})
 
@@ -167,7 +159,7 @@ func TestGetKubectlVersion(t *testing.T) {
 			restore := setupPATH(t, dir)
 			defer restore()
 
-			createFakeCommand(t, dir, "kubectl", tt.script, 0755)
+			createFakeCommand(t, dir, "kubectl", tt.script)
 
 			got, err := getKubectlVersion()
 			if tt.expectError {
@@ -183,11 +175,11 @@ func TestGetKubectlVersion(t *testing.T) {
 
 func TestValidateKubeCommands(t *testing.T) {
 	tests := []struct {
-		name         string
-		setupScript  string
-		expectErr    bool
-		errContains  []string
-		expectNoErr  bool
+		name        string
+		setupScript string
+		expectErr   bool
+		errContains []string
+		expectNoErr bool
 	}{
 		{
 			name:        "kubectl missing",
@@ -221,7 +213,7 @@ func TestValidateKubeCommands(t *testing.T) {
 			defer restore()
 
 			if tt.setupScript != "" {
-				createFakeCommand(t, dir, "kubectl", tt.setupScript, 0755)
+				createFakeCommand(t, dir, "kubectl", tt.setupScript)
 			}
 
 			err := validateKubeCommands()
@@ -266,10 +258,10 @@ func TestValidatePrerequisites(t *testing.T) {
 			defer restore()
 
 			if tt.createKubectl {
-				createFakeCommand(t, dir, "kubectl", "", 0755)
+				createFakeCommand(t, dir, "kubectl", "")
 			}
 			if tt.createDocker {
-				createFakeCommand(t, dir, "docker", "", 0755)
+				createFakeCommand(t, dir, "docker", "")
 			}
 
 			missing := validatePrerequisites()
@@ -283,13 +275,10 @@ func TestAddKubeCommands_NoPanicAndAddsSomething(t *testing.T) {
 	root := &cobra.Command{Use: "root"}
 	assert.NotNil(t, root)
 
-	// Call and ensure no panic
 	AddKubeCommands(root)
 
-	// Ensure commands slice is not nil
 	assert.NotNil(t, root.Commands())
 
-	// Optionally assert that at least one likely subcommand exists
 	expected := map[string]struct{}{
 		"delete":  {},
 		"version": {},
@@ -306,8 +295,6 @@ func TestAddKubeCommands_NoPanicAndAddsSomething(t *testing.T) {
 			break
 		}
 	}
-	// We don't strictly require specific commands, but at least one expected is preferred.
-	// If none are present, still ensure it didn't panic.
 	if len(root.Commands()) > 0 {
 		assert.True(t, foundAny, "expected at least one known subcommand to be added")
 	}
