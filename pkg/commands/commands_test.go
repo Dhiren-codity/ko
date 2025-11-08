@@ -39,7 +39,7 @@ func makeFakeTool(t *testing.T, dir, name, stdout, stderr string, exitCode int) 
 		require.NoError(t, os.WriteFile(file, []byte(content), 0o755))
 	} else {
 		file = filepath.Join(dir, name)
-		content := "#!/usr/bin/env sh\n"
+		content := "#!/bin/sh\n"
 		if stderr != "" {
 			content += "echo \"" + stderr + "\" 1>&2\n"
 		}
@@ -83,9 +83,6 @@ func TestIsCommandAvailable_Table(t *testing.T) {
 }
 
 func TestIsKubectlAvailable_Table(t *testing.T) {
-	tmp, restore := setTempPathOnly(t)
-	defer restore()
-
 	tests := []struct {
 		name        string
 		createKube  bool
@@ -96,6 +93,9 @@ func TestIsKubectlAvailable_Table(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tmp, restore := setTempPathOnly(t)
+			defer restore()
+
 			if tt.createKube {
 				makeFakeTool(t, tmp, "kubectl", "Client Version: v1.27.3", "", 0)
 			}
@@ -186,9 +186,6 @@ func TestGetRequiredCommands_StableOrder(t *testing.T) {
 }
 
 func TestValidatePrerequisites_Table(t *testing.T) {
-	tmp, restore := setTempPathOnly(t)
-	defer restore()
-
 	tests := []struct {
 		name       string
 		addKubectl bool
@@ -202,6 +199,9 @@ func TestValidatePrerequisites_Table(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tmp, restore := setTempPathOnly(t)
+			defer restore()
+
 			if tt.addKubectl {
 				makeFakeTool(t, tmp, "kubectl", "Client Version: v1.29.0", "", 0)
 			}
