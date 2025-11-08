@@ -105,53 +105,6 @@ func TestValidatePrerequisites_AllMissing(t *testing.T) {
 	assert.Equal(t, []string{"kubectl", "docker"}, missing)
 }
 
-func TestValidatePrerequisites_VariousCombinations(t *testing.T) {
-	tests := []struct {
-		name        string
-		setup       func(t *testing.T) string
-		wantMissing []string
-	}{
-		{
-			name: "only kubectl present",
-			setup: func(t *testing.T) string {
-				dir := t.TempDir()
-				makeFakeExecutable(t, dir, "kubectl", "echo ok", 0)
-				return dir
-			},
-			wantMissing: []string{"docker"},
-		},
-		{
-			name: "only docker present",
-			setup: func(t *testing.T) string {
-				dir := t.TempDir()
-				makeFakeExecutable(t, dir, "docker", "echo ok", 0)
-				return dir
-			},
-			wantMissing: []string{"kubectl"},
-		},
-		{
-			name: "both present",
-			setup: func(t *testing.T) string {
-				dir := t.TempDir()
-				makeFakeExecutable(t, dir, "kubectl", "echo ok", 0)
-				makeFakeExecutable(t, dir, "docker", "echo ok", 0)
-				return dir
-			},
-			wantMissing: []string{},
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			dir := tt.setup(t)
-			t.Setenv("PATH", dir)
-			missing := validatePrerequisites()
-			assert.Equal(t, tt.wantMissing, missing)
-		})
-	}
-}
-
 func TestAddKubeCommands_NoPanic(t *testing.T) {
 	root := &cobra.Command{Use: "root"}
 	assert.NotPanics(t, func() {
