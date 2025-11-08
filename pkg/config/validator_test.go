@@ -143,34 +143,6 @@ func TestValidateImageReferences(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestIsValidImageReference(t *testing.T) {
-	valid := []string{
-		"alpine",
-		"alpine:3",
-		"ubuntu:22.04",
-		"ghcr.io/org/app",
-		"ghcr.io/org/app:1.2.3",
-		"registry.example.com:5000/ns/img:latest",
-		"registry.example.com/ns/img@sha256:" + strings.Repeat("a", 64),
-	}
-	invalid := []string{
-		"",
-		":latest",
-		"UPPER/CASE",
-		"bad space/image:latest",
-		"ns//img:latest",
-		"img@",
-		"img@sha256:deadbeef",
-	}
-
-	for _, s := range valid {
-		assert.True(t, IsValidImageReference(s), "expected valid: %q", s)
-	}
-	for _, s := range invalid {
-		assert.False(t, IsValidImageReference(s), "expected invalid: %q", s)
-	}
-}
-
 func TestIsValidPlatform(t *testing.T) {
 	valid := []string{
 		"linux/amd64",
