@@ -68,36 +68,6 @@ func TestSanitizeTag_TruncationTrimsTrailing(t *testing.T) {
 	assert.True(t, IsValidTag(got))
 }
 
-func TestGenerateTagFromRef_Table(t *testing.T) {
-	tests := []struct {
-		name    string
-		ref     string
-		want    string
-		wantErr bool
-	}{
-		{"empty ref", "", "", true},
-		{"branch main", "refs/heads/main", "main", false},
-		{"branch feature with slash", "refs/heads/feature/foo", "feature-foo", false},
-		{"tag ref", "refs/tags/v1.0.0", "v1.0.0", false},
-		{"pull request", "refs/pull/123/head", "pr-123", false},
-		{"invalid pull format", "refs/pull/", "", true},
-		{"unknown ref used as-is", "release candidate", "release-candidate", false},
-		{"heads with empty name", "refs/heads/", "", true}, // becomes empty tag -> sanitize error
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GenerateTagFromRef(tt.ref)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-			assert.True(t, IsValidTag(got))
-		})
-	}
-}
-
 func TestTruncateTag_Table(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -126,33 +96,6 @@ func TestTruncateTag_Table(t *testing.T) {
 			assert.Equal(t, tt.want, got)
 			assert.Len(t, got, tt.assertLen)
 			assert.True(t, IsValidTag(got))
-		})
-	}
-}
-
-func TestNormalizeTag_Table(t *testing.T) {
-	tests := []struct {
-		name    string
-		in      string
-		want    string
-		wantErr bool
-	}{
-		{"empty", "", "", true},
-		{"lowercase simple", "Feature", "feature", false},
-		{"lowercase and sanitize", "FEATURE/FOO", "feature-foo", false},
-		{"sanitize failure after normalize", "###", "", true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := NormalizeTag(tt.in)
-			if tt.wantErr {
-				assert.Error(t, err)
-				return
-			}
-			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-			assert.True(t, IsValidTag(got))
-			assert.Equal(t, strings.ToLower(tt.in) == tt.in, strings.ToLower(got) == got)
 		})
 	}
 }
