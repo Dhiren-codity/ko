@@ -113,7 +113,7 @@ func TestCollapseRepeatedChars(t *testing.T) {
 		want string
 	}{
 		{"no_collapse", "abc", "abc"},
-		{"collapse_mixed", "a-._-._b", "a-_b"},        // after first '-', following specials are dropped until 'b'
+		{"collapse_mixed", "a-._-._b", "a-b"},         // after first '-', following specials are dropped until 'b'
 		{"collapse_run", "a---...___b", "a-b"},        // entire run collapsed to first '-'
 		{"start_with_specials", "-.-a", "-a"},         // first '-' kept, following special '.' dropped
 		{"only_specials", "---", "-"},                 // single remaining special
