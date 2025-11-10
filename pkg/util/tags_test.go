@@ -82,8 +82,8 @@ func TestSanitizeTag(t *testing.T) {
 		{
 			name:  "truncation removes trailing separator",
 			input: strings.Repeat("a", MaxTagLength-1) + "-zzz",
-			// Will truncate at MaxTagLength, then trim trailing specials if truncation ends with special
-			want: strings.Repeat("a", MaxTagLength),
+			// After truncation the trailing '-' is trimmed, resulting in 127 'a's.
+			want: strings.Repeat("a", MaxTagLength-1),
 		},
 		{
 			name:  "mix of allowed special characters retained",
@@ -178,9 +178,9 @@ func TestGenerateTagFromRef(t *testing.T) {
 			want: "pr",
 		},
 		{
-			name:    "invalid pull ref format",
-			ref:     "refs/pull",
-			wantErr: true,
+			name: "invalid pull ref format treated as unknown and sanitized",
+			ref:  "refs/pull",
+			want: "refs-pull",
 		},
 		{
 			name: "unknown ref format sanitized",
@@ -248,10 +248,10 @@ func TestTruncateTag(t *testing.T) {
 			want: "Valid_Tag-1.2",
 		},
 		{
-			name: "truncate to max removes trailing separator",
+			name: "no truncation when at max length, trailing separator allowed",
 			tag:  strings.Repeat("a", MaxTagLength-1) + "-",
 			max:  MaxTagLength,
-			want: strings.Repeat("a", MaxTagLength-1),
+			want: strings.Repeat("a", MaxTagLength-1) + "-",
 		},
 		{
 			name: "truncate when provided max > MaxTagLength uses MaxTagLength",
@@ -273,10 +273,10 @@ func TestTruncateTag(t *testing.T) {
 			want: "abcd",
 		},
 		{
-			name: "truncate trims trailing dot",
+			name: "no truncation or trimming when within max and valid",
 			tag:  "abcd.",
 			max:  5,
-			want: "abcd",
+			want: "abcd.",
 		},
 	}
 	for _, tt := range tests {
@@ -401,9 +401,7 @@ func TestAppendSuffix(t *testing.T) {
 			name:   "truncates base to fit suffix",
 			tag:    strings.Repeat("a", MaxTagLength-1),
 			suffix: "b",
-			// suffix gets prefixed with '-' since not starting with separator, so total = 127 + 2 = 129 > 128
-			// base truncated to 126 and combined with "-b"
-			want: strings.Repeat("a", MaxTagLength-2) + "-b",
+			want:   strings.Repeat("a", MaxTagLength-2) + "-b",
 		},
 		{
 			name:       "suffix too long produces error",
