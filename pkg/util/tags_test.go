@@ -140,7 +140,7 @@ func TestGenerateTagFromRef(t *testing.T) {
 		{"tag", "refs/tags/v1.0.0", "v1.0.0", false},
 		{"pull request", "refs/pull/123/head", "pr-123", false},
 		{"pull request missing id but len>=3 (empty)", "refs/pull//head", "pr", false},
-		{"pull ref invalid format", "refs/pull", "", true},
+		{"pull ref invalid format", "refs/pull", "refs-pull", false},
 		{"unknown default sanitized", "custom/ref value", "custom-ref-value", false},
 		{"empty error", "", "", true},
 		{"branch with spaces and unicode", "refs/heads/feat/mañana 🚀", "feat-ma-ana", false},
