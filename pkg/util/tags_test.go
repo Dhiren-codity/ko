@@ -80,7 +80,7 @@ func TestSanitizeTag(t *testing.T) {
 		got, err := SanitizeTag(input)
 		assert.NoError(t, err)
 		assert.True(t, len(got) <= MaxTagLength)
-		assert.NotSuffix(t, got, "-")
+		assert.False(t, strings.HasSuffix(got, "-"))
 	})
 
 	t.Run("empty input error", func(t *testing.T) {
@@ -251,7 +251,7 @@ func TestAppendSuffix(t *testing.T) {
 		assert.NoError(t, err)
 		assert.True(t, len(got) <= MaxTagLength)
 		assert.True(t, IsValidTag(got))
-		assert.Suffix(t, got, "-xyz")
+		assert.True(t, strings.HasSuffix(got, "-xyz"))
 	})
 }
 
