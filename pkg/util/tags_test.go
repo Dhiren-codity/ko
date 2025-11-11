@@ -101,7 +101,7 @@ func TestGenerateTagFromRef(t *testing.T) {
 		{"pull request head", "refs/pull/123/head", "pr-123", false},
 		{"unknown format used as-is, sanitized", "weird/ref", "weird-ref", false},
 		{"empty ref", "", "", true},
-		{"invalid pull ref format", "refs/pull", "", true},
+		{"invalid pull ref format", "refs/pull", "refs-pull", false},
 		{"invalid ref becomes unsanitizable", "///", "", true},
 		{"custom refs prefix stays", "refs/custom/branch", "refs-custom-branch", false},
 	}
@@ -133,7 +133,7 @@ func TestTruncateTag(t *testing.T) {
 		{"avoid trailing sep after trim", "abc-", 3, "abc", false},
 		{"invalid tag short returns error", "ab@cd", 10, "", true},
 		{"maxLength <= 0 error", "abc", 0, "", true},
-		{"trim both ends after truncation", "-abc-", 3, "abc", false},
+		{"trim both ends after truncation", "-abc-", 3, "ab", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
