@@ -81,7 +81,7 @@ func TestGenerateTagFromRef(t *testing.T) {
 		{"pull request no suffix", "refs/pull/123", "pr-123", false},
 		{"pull request missing number part becomes pr", "refs/pull//head", "pr", false},
 		{"unknown ref uses as-is sanitized", "weird/ref", "weird-ref", false},
-		{"invalid pull format error", "refs/pull", "", true},
+		{"non pr ref sanitized", "refs/pull", "refs-pull", false},
 		{"empty ref error", "", "", true},
 		{"unsanitizable ref error", "!!!", "", true},
 		{"simple other ref", "foo", "foo", false},
@@ -113,7 +113,7 @@ func TestTruncateTag(t *testing.T) {
 		{"invalid no truncation error", "-abc", 10, "", true},
 		{"simple truncation", "abcdef", 3, "abc", false},
 		{"truncation removes trailing specials", "abc--", 4, "abc", false},
-		{"invalid cannot make valid", "-abcdef", 3, "", true},
+		{"truncation removes invalid leading", "-abcdef", 3, "ab", false},
 		{"clamp to MaxTagLength large max", strings.Repeat("a", 10), MaxTagLength + 1000, strings.Repeat("a", 10), false},
 	}
 	for _, tt := range tests {
@@ -209,11 +209,14 @@ func TestAppendSuffix(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("truncate path with invalid base causes truncate error", func(t *testing.T) {
+	t.Run("truncate path with invalid base succeeds by trimming", func(t *testing.T) {
 		base := "-" + strings.Repeat("a", MaxTagLength-1) // invalid base, length == MaxTagLength
 		suffix := "-x"
-		_, err := AppendSuffix(base, suffix)
-		assert.Error(t, err)
+		got, err := AppendSuffix(base, suffix)
+		assert.NoError(t, err)
+		assert.True(t, IsValidTag(got))
+		assert.LessOrEqual(t, len(got), MaxTagLength)
+		assert.True(t, strings.HasSuffix(got, suffix))
 	})
 }
 
