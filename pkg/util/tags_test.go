@@ -99,19 +99,16 @@ func TestGenerateTagFromRef(t *testing.T) {
 }
 
 func TestGenerateTagFromRef_ErrorCases(t *testing.T) {
-	_, err := GenerateTagFromRef("refs/pull")
+	// "refs/pull" does not match the "refs/pull/" prefix path and should be sanitized as an unknown ref.
+	tag, err := GenerateTagFromRef("refs/pull")
+	assert.NoError(t, err)
+	assert.Equal(t, "refs-pull", tag)
+
+	// Un-sanitizable (becomes empty) default case should error.
+	_, err = GenerateTagFromRef("///")
 	assert.Error(t, err)
 	if err != nil {
-		assert.Contains(t, err.Error(), "invalid pull request ref format")
-	}
-
-	// Un-sanitizable (becomes empty) default case
-	tag, err := GenerateTagFromRef("///")
-	if err != nil {
 		assert.Contains(t, err.Error(), "unable to sanitize tag")
-	} else {
-		assert.NotEmpty(t, tag)
-		assert.True(t, IsValidTag(tag))
 	}
 }
 
