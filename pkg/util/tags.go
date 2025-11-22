@@ -33,6 +33,8 @@ var (
 
 // SanitizeTag converts an arbitrary string into a valid Docker tag
 // by replacing invalid characters and enforcing length limits
+var SanitizeTagMock = SanitizeTag
+
 func SanitizeTag(input string) (string, error) {
 	if input == "" {
 		return "", fmt.Errorf("tag cannot be empty")
@@ -68,7 +70,7 @@ func SanitizeTag(input string) (string, error) {
 	}
 
 	// Collapse multiple consecutive dashes/dots/underscores
-	sanitized = collapseRepeatedChars(sanitized)
+	sanitized = collapseRepeatedCharsMock(sanitized)
 
 	// Enforce maximum length
 	if len(sanitized) > MaxTagLength {
@@ -78,7 +80,7 @@ func SanitizeTag(input string) (string, error) {
 	}
 
 	// Final validation
-	if !IsValidTag(sanitized) {
+	if !IsValidTagMock(sanitized) {
 		return "", fmt.Errorf("unable to sanitize tag: %s", input)
 	}
 
@@ -86,6 +88,8 @@ func SanitizeTag(input string) (string, error) {
 }
 
 // IsValidTag checks if a string is a valid Docker tag
+var IsValidTagMock = IsValidTag
+
 func IsValidTag(tag string) bool {
 	if tag == "" {
 		return false
@@ -104,6 +108,8 @@ func IsValidTag(tag string) bool {
 //   - refs/heads/feature/foo -> feature-foo
 //   - refs/tags/v1.0.0 -> v1.0.0
 //   - refs/pull/123/head -> pr-123
+var GenerateTagFromRefMock = GenerateTagFromRef
+
 func GenerateTagFromRef(ref string) (string, error) {
 	if ref == "" {
 		return "", fmt.Errorf("ref cannot be empty")
@@ -131,10 +137,12 @@ func GenerateTagFromRef(ref string) (string, error) {
 		tag = ref
 	}
 
-	return SanitizeTag(tag)
+	return SanitizeTagMock(tag)
 }
 
 // TruncateTag truncates a tag to the specified length while maintaining validity
+var TruncateTagMock = TruncateTag
+
 func TruncateTag(tag string, maxLength int) (string, error) {
 	if maxLength <= 0 {
 		return "", fmt.Errorf("maxLength must be positive")
@@ -145,7 +153,7 @@ func TruncateTag(tag string, maxLength int) (string, error) {
 	}
 
 	if len(tag) <= maxLength {
-		if !IsValidTag(tag) {
+		if !IsValidTagMock(tag) {
 			return "", fmt.Errorf("tag is invalid: %s", tag)
 		}
 		return tag, nil
@@ -155,7 +163,7 @@ func TruncateTag(tag string, maxLength int) (string, error) {
 	// Remove trailing invalid characters
 	truncated = strings.Trim(truncated, "-._")
 
-	if !IsValidTag(truncated) {
+	if !IsValidTagMock(truncated) {
 		return "", fmt.Errorf("unable to truncate tag while maintaining validity: %s", tag)
 	}
 
@@ -163,6 +171,8 @@ func TruncateTag(tag string, maxLength int) (string, error) {
 }
 
 // NormalizeTag converts a tag to lowercase and sanitizes it
+var NormalizeTagMock = NormalizeTag
+
 func NormalizeTag(tag string) (string, error) {
 	if tag == "" {
 		return "", fmt.Errorf("tag cannot be empty")
@@ -172,10 +182,12 @@ func NormalizeTag(tag string) (string, error) {
 	normalized := strings.ToLower(tag)
 
 	// Sanitize
-	return SanitizeTag(normalized)
+	return SanitizeTagMock(normalized)
 }
 
 // AppendSuffix adds a suffix to a tag while respecting length limits
+var AppendSuffixMock = AppendSuffix
+
 func AppendSuffix(tag, suffix string) (string, error) {
 	if tag == "" {
 		return "", fmt.Errorf("tag cannot be empty")
@@ -199,7 +211,7 @@ func AppendSuffix(tag, suffix string) (string, error) {
 			return "", fmt.Errorf("suffix too long: %s", suffix)
 		}
 
-		truncated, err := TruncateTag(tag, maxBaseLength)
+		truncated, err := TruncateTagMock(tag, maxBaseLength)
 		if err != nil {
 			return "", fmt.Errorf("failed to truncate tag for suffix: %w", err)
 		}
@@ -207,7 +219,7 @@ func AppendSuffix(tag, suffix string) (string, error) {
 		combined = truncated + suffix
 	}
 
-	if !IsValidTag(combined) {
+	if !IsValidTagMock(combined) {
 		return "", fmt.Errorf("resulting tag is invalid: %s", combined)
 	}
 
@@ -220,6 +232,9 @@ func isAlphanumeric(r rune) bool {
 }
 
 // collapseRepeatedChars collapses sequences of dashes, dots, and underscores into single characters
+// collapseRepeatedChars collapses sequences of dashes, dots, and underscores into single characters
+var collapseRepeatedCharsMock = collapseRepeatedChars
+
 func collapseRepeatedChars(s string) string {
 	var result strings.Builder
 	var prev rune
@@ -232,7 +247,7 @@ func collapseRepeatedChars(s string) string {
 		}
 
 		// Skip if both current and previous are special characters
-		if isSpecialChar(r) && isSpecialChar(prev) {
+		if isSpecialCharMock(r) && isSpecialCharMock(prev) {
 			continue
 		}
 
@@ -244,6 +259,8 @@ func collapseRepeatedChars(s string) string {
 }
 
 // isSpecialChar checks if a character is a special tag character (dash, dot, underscore)
+var isSpecialCharMock = isSpecialChar
+
 func isSpecialChar(r rune) bool {
 	return r == '-' || r == '.' || r == '_'
 }
