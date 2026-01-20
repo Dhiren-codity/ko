@@ -1,7 +1,7 @@
 name: Do Not Submit
 
 on:
-  pull_request:
+  push:
     branches: ['main']
 
 permissions: {}
