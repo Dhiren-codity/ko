@@ -1,7 +1,7 @@
 name: Basic e2e test
 
 on:
-  pull_request:
+  push:
     branches:
       - 'main'
 
